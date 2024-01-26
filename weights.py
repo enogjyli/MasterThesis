@@ -16,18 +16,13 @@ def get_bounds(x,bins):
             j += 1 
 
     return up,low   
-def setting_weights(n, nbins, data, theta):
+def setting_weights(n, nbins, thetadata, theta):
 
-    theta_up, theta_low = get_bounds(data[3][:],theta)
-    #print(theta_up[:5])
-    #print(theta_low[:5])
+    theta_up, theta_low = get_bounds(thetadata,theta)
 
     # Computing the weights
-    w_l = (theta_up-data[3][:])/(theta_up-theta_low)
-    w_u = (data[3][:]-theta_low)/(theta_up-theta_low)
-
-    #print(w_l[:3])
-    #print(w_u[:3])
+    w_l = (theta_up-thetadata)/(theta_up-theta_low)
+    w_u = (thetadata-theta_low)/(theta_up-theta_low)
 
     # Bin endpoints weights  w_{b,i}
     w_bn = np.zeros((nbins+1,n))
@@ -38,5 +33,4 @@ def setting_weights(n, nbins, data, theta):
             if theta[j] == theta_up[i]:
                 w_bn[j][i] = w_u[i]
 
-    #print(w_bn[:,0])
     return theta_up, theta_low, w_l, w_u, w_bn
