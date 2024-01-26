@@ -1,6 +1,7 @@
 from weights import setting_weights
 from compute import initialization
 from compute import compute_P, compute_mu
+import numpy as np
 import scipy
 from sklearn.preprocessing import normalize
 
