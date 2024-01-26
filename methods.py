@@ -14,9 +14,10 @@ def compute_losses(x, mu_len, p_len, xdata, w_l, w_u, theta, theta_low, theta_up
     betas = update_betas(n, xdata, w_l, w_u, np.zeros((nbins+1,K)), bases, theta, theta_low, theta_up)
 
     for i in range(n):
-        p1_new = compute_P(w_l, w_u, bases, theta, theta_low, theta_up, i)[:,0]/np.linalg.norm(compute_P(w_l, w_u, bases, theta, theta_low, theta_up, i)[:,0])
-        p2_new = compute_P(w_l, w_u, bases, theta, theta_low, theta_up, i)[:,1]/np.linalg.norm(compute_P(w_l, w_u, bases, theta, theta_low, theta_up, i)[:,1])
-        res = xdata[i]- np.vstack((p1_new,p2_new)).T @ betas[i]
+        p_new = []
+        for j in range(m):
+            p_new.append(compute_P(w_l, w_u, bases, theta, theta_low, theta_up, i)[:,j]/np.linalg.norm(compute_P(w_l, w_u, bases, theta, theta_low, theta_up, i)[:,j]))
+        res = xdata[i]- np.vstack(p_new).T @ betas[i]
         E_data += (np.linalg.norm(res)**2)
     E_data = E_data/n
 
