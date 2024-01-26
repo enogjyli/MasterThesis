@@ -29,10 +29,7 @@ def initialization(n, nbins, m, xdata, w_bn, w_l, w_u, theta, theta_low, theta_u
         train_init = xdata[:, indices].reshape((-1, np.shape(indices)[-1])).T
         pca = PCA(n_components=m)
         pca.fit(train_init)
-        p1 = pca.components_[0]
-        p2 = pca.components_[1]
-
-        bases.append(np.vstack((p1,p2)))
+        bases.append(np.vstack(pca.components_[:m]))
 
     # rearrange vectors
     for b in range(1,nbins+1):
