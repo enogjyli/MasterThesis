@@ -15,27 +15,24 @@ def compute_P(w_l, w_u, bases, theta, theta_low, theta_up, index):
     res = np.squeeze(w_l[index]*bases[i_low] + w_u[index]*bases[i_up])
     return res.T
 
-def initialization(n, nbins, m, data, w_bn, w_l, w_u, theta, theta_low, theta_up, eps = 0.001):
+def initialization(n, nbins, m, xdata, w_bn, w_l, w_u, theta, theta_low, theta_up, eps = 0.001):
     # Function that initializes mean, bases and coeff.
     mu_0 = []
     bases = []
     betas = []
 
     for b in range(nbins+1):
-        mu_0.append((np.matmul(data[:3,:],w_bn[b,:]))/(w_bn[b,:].sum()))
-        # print(np.shape(mu_0))
+        mu_0.append((np.matmul(xdata,w_bn[b,:]))/(w_bn[b,:].sum()))
          
         # Perform PCA on examples with w_{b,i} > eps
         indices = np.where(w_bn[b,:]>eps)
-        train_init = data[:3,indices].reshape((3,np.shape(indices)[-1])).T
+        train_init = xdata[:, indices].reshape((-1, np.shape(indices)[-1])).T
         pca = PCA(n_components=m)
         pca.fit(train_init)
         p1 = pca.components_[0]
         p2 = pca.components_[1]
 
         bases.append(np.vstack((p1,p2)))
-        #print(bases[0].shape)
-        #print(pca.explained_variance_ratio_)
 
     # rearrange vectors
     for b in range(1,nbins+1):
@@ -57,10 +54,9 @@ def initialization(n, nbins, m, data, w_bn, w_l, w_u, theta, theta_low, theta_up
     for i in range(n):
         P = compute_P(w_l, w_u, bases, theta, theta_low, theta_up, i)
         P_inv = np.linalg.pinv(P)
-        res = (data[:3,i]-compute_mu(w_l, w_u, mu_0, theta, theta_low, theta_up, i))
+        res = (xdata[:, i]-compute_mu(w_l, w_u, mu_0, theta, theta_low, theta_up, i))
 
         betas.append(P_inv @ res)
 
     betas = np.stack(betas)
-
     return mu_0, bases, betas
