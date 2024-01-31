@@ -5,7 +5,7 @@ def get_bounds(x,bins):
     up = np.zeros(len(x))
     low = np.zeros(len(x))
     for i in range(len(x)):
-        j = 0
+        j = 1
         flag = True
         while(flag):
             if x[i]<=bins[j]:
