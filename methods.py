@@ -61,7 +61,7 @@ class GuptaPPCA(object):
     self.m = m
     self.dim = None
 
-  def fit(self, thetadata, xdata, lambda_v = 0.008, lambda_m = 4.2, lambda_O = 20, tol = 0.005, maxiter = 100, verbose = False):
+  def fit(self, thetadata, xdata, lambda_v = 0.008, lambda_m = 4.2, lambda_O = 20, method='Nelder-Mead', tol = 0.005, maxiter = 100, verbose = False):
     ''' thetadata shape (N,), xdata shape (N, dim)'''
     n, K = xdata.shape
     self.dim = K
@@ -87,7 +87,7 @@ class GuptaPPCA(object):
     E_history = [E_0]
 
     # Optimization
-    res = scipy.optimize.minimize(compute_losses, p_0, args=(mu_len, p_len, xdata, w_l, w_u, bins, theta_low, theta_up, lambda_v, lambda_0, m), method='Nelder-Mead', tol=tol, options = {'maxiter':maxiter,'disp':verbose})
+    res = scipy.optimize.minimize(compute_losses, p_0, args=(mu_len, p_len, xdata, w_l, w_u, bins, theta_low, theta_up, lambda_v, lambda_0, m), method=method, tol=tol, options = {'maxiter':maxiter,'disp':verbose})
 
     # Mu
     self.mu = np.zeros((nbins+1,K))
