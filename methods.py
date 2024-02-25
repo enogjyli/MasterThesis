@@ -61,7 +61,7 @@ class GuptaPPCA(object):
     self.m = m
     self.dim = None
 
-  def fit(self, thetadata, xdata, lambda_v = 0.008, lambda_m = 4.2, lambda_O = 20, method='Nelder-Mead', tol = 0.005, maxiter = 100, verbose = False):
+  def fit(self, thetadata, xdata, lambda_v = 4.2, lambda_m = 0.008, lambda_O = 20, method='Nelder-Mead', tol = 0.005, maxiter = 100, verbose = False):
     ''' thetadata shape (N,), xdata shape (N, dim)'''
     n, K = xdata.shape
     self.dim = K
