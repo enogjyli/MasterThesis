@@ -9,10 +9,10 @@ from sklearn.preprocessing import normalize
 def compute_losses(x, mu_len, p_len, xdata, w_l, w_u, theta, theta_low, theta_up, lambda_v, lambda_0, m):
     E_data = 0
     nbins = len(theta)-1
-    n, K = xdata.shape
-    bases = x.reshape(((nbins+1)*m,K)).reshape((nbins+1,m,K))
+    n, D = xdata.shape
+    bases = x.reshape(((nbins+1)*m,D)).reshape((nbins+1,m,D))
 
-    betas = update_betas(n, xdata, w_l, w_u, np.zeros((nbins+1,K)), bases, theta, theta_low, theta_up)
+    betas = update_betas(n, xdata, w_l, w_u, np.zeros((nbins+1,D)), bases, theta, theta_low, theta_up)
 
     for i in range(n):
         p_new = []
@@ -63,8 +63,8 @@ class GuptaPPCA(object):
 
   def fit(self, thetadata, xdata, lambda_v = 4.2, lambda_m = 0.008, lambda_O = 20, method='Nelder-Mead', tol = 0.005, maxiter = 100, verbose = False):
     ''' thetadata shape (N,), xdata shape (N, dim)'''
-    n, K = xdata.shape
-    self.dim = K
+    n, D = xdata.shape
+    self.dim = D
     bins = self.bins
     m = self.m
     nbins = len(bins)-1
@@ -73,8 +73,8 @@ class GuptaPPCA(object):
     theta_up, theta_low, w_l, w_u, w_bn = setting_weights(n, nbins, thetadata, bins)
 
     mu_0, bases_0, betas_0 = initialization(n, nbins, m, xdata.T, w_bn, w_l, w_u, bins, theta_low, theta_up)
-    mean_0 = mu_0.reshape(((nbins+1)*K,))
-    p_0 = bases_0.reshape(((nbins+1)*m*K,))
+    mean_0 = mu_0.reshape(((nbins+1)*D,))
+    p_0 = bases_0.reshape(((nbins+1)*m*D,))
 
     mu_len = mean_0.shape[0]
     p_len = p_0.shape[0]
@@ -90,10 +90,10 @@ class GuptaPPCA(object):
     res = scipy.optimize.minimize(compute_losses, p_0, args=(mu_len, p_len, xdata, w_l, w_u, bins, theta_low, theta_up, lambda_v, lambda_0, m), method=method, tol=tol, options = {'maxiter':maxiter,'disp':verbose})
 
     # Mu
-    self.mu = np.zeros((nbins+1,K))
+    self.mu = np.zeros((nbins+1,D))
 
     # P
-    self.bases = res.x.reshape(((nbins+1)*m,K)).reshape((nbins+1,m,K))
+    self.bases = res.x.reshape(((nbins+1)*m,D)).reshape((nbins+1,m,D))
 
     # Betas
     self.betas = update_betas(n, xdata, w_l, w_u, self.mu, self.bases, bins, theta_low, theta_up)
@@ -113,7 +113,8 @@ class GuptaPPCA(object):
     xdata_proj = np.zeros((len(xdata),self.m))
 
     for i in range(len(xdata)):
-        xdata_proj[i,:] = xdata[i,:] @ self.predict(thetadata[i])
+        # xdata_proj[i,:] = xdata[i,:] @ self.predict(thetadata[i])
+        xdata_proj[i,:] = np.linalg.lstsq(self.predict(thetadata[i]), xdata[i,:], rcond = None)[0]
 
     return xdata_proj
 
@@ -294,7 +295,7 @@ class binPCA(object):
         self.bin_bases = bin_bases
 
     def predict(self,new_theta):
-        return self.bin_bases[sum(self.bins<=new_theta)-1]
+        return self.bin_bases[sum(self.bins[:-1]<=new_theta)-1]
     
     def transform(self, thetadata, xdata):
         ''' thetadata shape (N,), xdata shape (N, dim)'''
